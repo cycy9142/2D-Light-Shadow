@@ -23,7 +23,6 @@
       <script>scripts\shadow_set_light.gml</script>
       <script>scripts\shadow_draw.gml</script>
       <script>scripts\shadow_simulate.gml</script>
-      <script>scripts\script5.gml</script>
       <script>scripts\shadow_create_light.gml</script>
     </scripts>
   </scripts>

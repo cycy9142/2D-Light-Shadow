@@ -85,20 +85,10 @@ surface_reset_target();
 surface_set_target(__tttt);
 
     draw_clear_alpha(c_black, 0);
-    __tx = -mouse_x+300;
-    __ty = -mouse_y+300;
-    draw_circle(360 + __tx, 640 + __ty, 20, false);
-    
-    draw_circle(200 + __tx, 200 + __ty, 10, false);
-    
-    draw_rectangle(300 + __tx , 800 + __ty, 500 + __tx, 850 + __ty, false);
-    
-    draw_sprite(spr_mm, -1, 450 + __tx , 300 + __ty);
     
 surface_reset_target();
 
 draw_set_blend_mode(bm_add);
-//draw_set_blend_mode_ext(bm_inv_src_alpha,bm_inv_dest_alpha);
 surface_set_target(__rrrr);
 
     draw_clear_alpha(c_black, 0);
