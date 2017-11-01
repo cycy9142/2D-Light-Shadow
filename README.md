@@ -1,1 +1,101 @@
-# 2D-
+# 2D-Light-Shadow
+
+주로 쓰이는 2D Dynamic Shadow 와는 다른 방식의 그림자 표현을 구현
+
+별다른 추가 정보를 기입하지 않고도 픽셀 이미지의 그림자 표현의 가능한 방식
+
+#### 조명 및 그림자를 그리기 위한 서피스를 생성
+
+    //Create Event
+
+    globalvar __sha_shadow_surface;
+
+    __sha_shadow_surface = surface_create(view_wview, view_hview);
+
+    surface_set_target(__sha_shadow_surface);
+        draw_clear_alpha(c_black, 0);
+    surface_reset_target();
+
+
+#### 그림자를 추가할 오브젝트를 서피스에 그림
+
+    surface_set_target(__sha_light_surface_1);
+        draw_clear_alpha(c_black, 0);
+        __sha_tx = __sha_radius - x;
+        __sha_ty = __sha_radius - y;
+        with(shadow_parent)
+        {
+            if( sprite_index != -1)
+            {
+                draw_sprite_ext(sprite_index, image_index, x+other.__sha_tx, y+other.__sha_ty, 1, 1, 0, c_black, 1)
+            }
+        }
+    surface_reset_target();
+
+
+#### 조명을 중심으로 그림자를 확대하며 그려냄
+
+    draw_set_blend_mode_ext(bm_one, bm_inv_src_alpha);
+        var __ss_bval, __ss_i;
+
+        __ss_i = 1;
+        while (1)
+        {    
+            __ss_bval = 1+(__ss_i/__sha_radius);
+
+            surface_set_target(__sha_light_surface_2);
+                draw_clear_alpha(c_black, 0);
+                draw_surface(__sha_light_surface_1, 0, 0);
+                draw_surface_part_ext( __sha_light_surface_1, __sha_radius-__sha_radius*(1/__ss_bval), __sha_radius-__sha_radius*(1/__ss_bval),
+                                       (__sha_radius*(1/__ss_bval))*2, (__sha_radius*(1/__ss_bval))*2,
+                                   0, 0, __ss_bval, __ss_bval, c_white, 1);
+            surface_reset_target();
+            __ss_i += __ss_i;
+
+            __ss_bval = 1+(__ss_i/__sha_radius);
+
+            surface_set_target(__sha_light_surface_1);
+                draw_clear_alpha(c_black, 0);
+                draw_surface(__sha_light_surface_2, 0, 0);
+                draw_surface_part_ext( __sha_light_surface_2, __sha_radius-__sha_radius*(1/__ss_bval), __sha_radius-__sha_radius*(1/__ss_bval),
+                                       (__sha_radius*(1/__ss_bval))*2, (__sha_radius*(1/__ss_bval))*2,
+                                   0, 0, __ss_bval, __ss_bval, c_white, 1);
+            surface_reset_target();
+
+            if( __ss_i > sqr(__sha_radius) ) break;
+
+            __ss_i += __ss_i;
+        }
+    surface_reset_target();
+
+
+#### 조명을 그려준 후, 생성된 그림자를 그려냄
+
+    surface_set_target(__sha_light_surface_2);
+        draw_clear_alpha(c_black, 0);
+        draw_sprite_stretched_ext(spr_light, -1, 0, 0, __sha_radius*2, __sha_radius*2, __sha_colour, __sha_alpha);
+
+        draw_set_blend_mode_ext(bm_zero,bm_inv_src_alpha);
+            draw_surface(__sha_light_surface_1, 0, 0);
+        draw_set_blend_mode(bm_normal);
+    surface_reset_target();
+
+
+#### 만들어진 이미지를 최종적으로 메인 서피스에 그려냄
+
+    surface_set_target(__sha_shadow_surface);
+        draw_set_blend_mode(bm_add);
+        draw_surface(__sha_light_surface_2, x-__sha_radius, y-__sha_radius);
+        draw_set_blend_mode(bm_normal);
+    surface_reset_target();
+
+
+#### 그림자를 그려낸 후, 서피스 초기화
+
+    draw_set_blend_mode_ext(bm_dest_color,bm_src_alpha);
+        draw_surface_ext(__sha_shadow_surface, 0, 0, 1, 1, 0, c_white, 0.5);
+    draw_set_blend_mode(bm_normal);
+
+    surface_set_target(__sha_shadow_surface);
+        draw_clear_alpha(c_black, 0);
+    surface_reset_target();
